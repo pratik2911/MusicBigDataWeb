@@ -52,7 +52,7 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 				getParameter("userId").toString(),"recommendations", "item_based");
 		Song currentSong = new Song();
 		out.println("<table class='table-hover table table-bordered' >");
-		out.println("<thead><th>Album Art</th><th>Song Title</th><th>Artist Name</th></thead><tbody>");
+		out.println("<thead><th>Album Art</th><th>Song Title</th><th>Artist Name</th><th>Release Year</th></thead><tbody>");
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
@@ -84,8 +84,9 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 						temp += resp;
 					}
 					Matcher m = Pattern.compile(".*(http:.*jpg).*").matcher(temp);
+					
 					if(m.matches()){
-						out.println("<tr><td><img src=\""+m.group(1)+"\" class=\"img-responsive\"></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td></tr>");
+						out.println("<tr><td><img src=\""+m.group(1)+"\" class=\"img-responsive\"></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
 					}
 					
 					temp="";
