@@ -31,7 +31,7 @@ public class HelloWorld extends HttpServlet {
 		// TODO Auto-generated method stub
 		PrintWriter out = response.getWriter();
 		out.print("Hello World from Servlet");
-		out.println(HBaseApi.getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95", "item_based"));
+		out.println(HBaseApi.getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations", "item_based"));
 		out.flush();
 		out.close();
 	}

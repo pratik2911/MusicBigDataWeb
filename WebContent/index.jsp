@@ -49,8 +49,10 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 		String resp;
 		String respBuff="";
 		List<String> outList = HBaseApi.getRecommendations(request.
-				getParameter("userId").toString(), "item_based");
+				getParameter("userId").toString(),"recommendations", "item_based");
 		Song currentSong = new Song();
+		out.println("<table class='table-hover table table-bordered' >");
+		out.println("<thead><th>Album Art</th><th>Artist Name</th><th>Song Title</th></thead><tbody>");
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
@@ -82,13 +84,13 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 						temp += resp;
 					}
 					Matcher m = Pattern.compile(".*(http:.*jpg).*").matcher(temp);
-					//out.println(m.toString()+"<br><br><br>");
 					if(m.matches()){
-						out.println("</br><img src=\""+m.group(1)+"\"<class=\"img-responsive\">"+"<br><br>");
+						out.println("<tr><td><img src=\""+m.group(1)+"\" class=\"img-responsive\"></td> <td> Song Title: "+currentSong.getTitle()+"</td><td> \nArtist Name: "+currentSong.getArtist_name()+"</td></tr>");
 					}
 					
 					temp="";
 				}
+				
 			}
 			
 			respBuff="";
@@ -96,6 +98,7 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 				e.printStackTrace();
 			}
 		}
+		out.println("</tbody></table>");
 	}
 	
 %>

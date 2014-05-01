@@ -139,10 +139,10 @@ public class HBaseApi {
       }
   }
   
-  public static List<String> getRecommendations(String userId, String familyName) {
+  public static List<String> getRecommendations(String userId, String tableName, String familyName) {
     try{
     	 List<String> recommendations = new ArrayList<String>();
-         HTable table = new HTable(conf, "recommendations");
+         HTable table = new HTable(conf, tableName);
          Get get = new Get(Bytes.toBytes(userId));
          get.addFamily(Bytes.toBytes(familyName));
          Result result = table.get(get);
@@ -160,7 +160,8 @@ public class HBaseApi {
     }
   }
   
-  public static void main(){
-  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95", "item_based"));
+  public static void main(String args[]) throws IOException{
+  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
+  	getOneRecord("song_similarity", "SOVHZBK12AF72A66E8");
   }
 }
