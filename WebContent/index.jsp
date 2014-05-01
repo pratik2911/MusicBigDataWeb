@@ -1,3 +1,4 @@
+<%@page import="edu.music.Song"%>
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="java.io.BufferedReader"%>
 <%@page import="edu.music.HBaseApi"%>
@@ -5,6 +6,8 @@
 <%@page import="java.net.URLConnection"%>
 <%@page import="java.util.List"%>
 <%@page import="java.lang.Exception" %>
+<%@page import="java.util.regex.Pattern" %>
+<%@page import="java.util.regex.Matcher" %>
 
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
@@ -20,6 +23,10 @@
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+ <!-- Custom styles for this template -->
+    <link href="dashboard.css" rel="stylesheet">
+    
 <%!
 	private static final String API_KEY = "EX6P8AWPX20EYYEAD";
 	
@@ -28,6 +35,7 @@
 <title>Big Data Analytics</title>
 </head>
 <body>
+
 <h1>Get Recommendations</h1>
 <form action="index.jsp" method="post">
 User ID: <input type="text" name="userId" id="userId" size="50" />
@@ -36,38 +44,67 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 
 
 <%
+
 	if(request.getParameter("userId") != null){
 		String resp;
 		String respBuff="";
 		List<String> outList = HBaseApi.getRecommendations(request.
 				getParameter("userId").toString(), "item_based");
-		
+		Song currentSong = new Song();
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
-			URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id=potty");//+id.trim());
+			//out.println(id+"  ");
+			URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+id.trim());
 			URLConnection urIcon = jsonPage.openConnection();
 			BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
-		
+			
 			while((resp = br.readLine()) != null){
 				respBuff += resp;
 			}
+			
 			br.close();
-			out.println(respBuff+"<br><br><br>");
+			if(respBuff!=""){
+				String arr[] = respBuff.split(",");
+				String temp="";
+				String json = respBuff.substring(respBuff.indexOf(arr[3]));
+				json=json.substring(json.indexOf('[')+1 , json.lastIndexOf(']'));
+				
+				
+				if(json.length()>0){
+					currentSong=currentSong.fromJson(json);
+					jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
+						+currentSong.getArtist_name().toLowerCase().replace(" ", "%20")+"&title="+currentSong.getTitle().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
+					
+					urIcon = jsonPage.openConnection();
+					br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+					while((resp = br.readLine()) != null){
+						temp += resp;
+					}
+					Matcher m = Pattern.compile(".*(http:.*jpg).*").matcher(temp);
+					//out.println(m.toString()+"<br><br><br>");
+					if(m.matches()){
+						out.println("</br><img src=\""+m.group(1)+"\"<class=\"img-responsive\">"+"<br><br>");
+					}
+					
+					temp="";
+				}
+			}
+			
 			respBuff="";
 			}catch (Exception e){
 				e.printStackTrace();
 			}
 		}
 	}
-
-	
-	
 	
 %>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+
+	<!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    
 </body>
 </html>
