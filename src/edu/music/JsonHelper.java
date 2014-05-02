@@ -3,7 +3,6 @@ package edu.music;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-public class GameApiJsonHelper {
+public class JsonHelper {
 	
 	public static void main(String args[]) throws IOException, JSONException {
 		String respBuff = "";
@@ -37,7 +36,7 @@ public class GameApiJsonHelper {
 		JsonParser jp = new JsonParser();
 		JsonElement je = jp.parse(respBuff);
 		String prettyJsonString = gson.toJson(je);
-		//System.out.println(prettyJsonString);
+		System.out.println(prettyJsonString);
 		Map bw = (Map) getMessageObject(respBuff);
 		//System.out.println(bw);
 		List list = (List) ((Map)bw.get("response")).get("songs");

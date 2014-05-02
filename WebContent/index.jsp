@@ -2,12 +2,18 @@
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="java.io.BufferedReader"%>
 <%@page import="edu.music.HBaseApi"%>
+<%@page import="edu.music.JsonHelper"%>
 <%@page import="java.net.URL"%>
 <%@page import="java.net.URLConnection"%>
 <%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
 <%@page import="java.lang.Exception" %>
 <%@page import="java.util.regex.Pattern" %>
 <%@page import="java.util.regex.Matcher" %>
+<%@page import="com.google.gson.Gson" %>
+<%@page import="com.google.gson.GsonBuilder" %>
+<%@page import="com.google.gson.JsonElement" %>
+<%@page import="com.google.gson.JsonParser" %>
 
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
@@ -64,8 +70,8 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 			while((resp = br.readLine()) != null){
 				respBuff += resp;
 			}
-			
 			br.close();
+			
 			if(respBuff!=""){
 				String arr[] = respBuff.split(",");
 				String temp="";
@@ -83,11 +89,19 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 					while((resp = br.readLine()) != null){
 						temp += resp;
 					}
-					Matcher m = Pattern.compile(".*(http:.*jpg).*").matcher(temp);
+					br.close();
 					
-					if(m.matches()){
-						out.println("<tr><td><img src=\""+m.group(1)+"\" class=\"img-responsive\"></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
-					}
+					/* Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
+					    .create();
+					JsonParser jp = new JsonParser();
+					JsonElement je = jp.parse(temp);
+					String prettyJsonString = gson.toJson(je); */
+					//out.println(prettyJsonString);
+					
+					Map bw = (Map) JsonHelper.getMessageObject(temp);
+					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
+					out.println(tracks.get("id"));
+					out.println("<tr><td><img src=\""+tracks.get("release_image")+"\" class=\"img-responsive\"></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
 					
 					temp="";
 				}
