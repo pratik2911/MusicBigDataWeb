@@ -100,8 +100,8 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 					
 					Map bw = (Map) JsonHelper.getMessageObject(temp);
 					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
-					out.println(tracks.get("id"));
-					out.println("<tr><td><img src=\""+tracks.get("release_image")+"\" class=\"img-responsive\"></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
+					//out.println(tracks.get("id"));
+					out.println("<tr><td><a href=\"displayTrackData.jsp?id="+tracks.get("id")+"\"><img src=\""+tracks.get("release_image")+"\" class=\"img-responsive\"></a></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
 					
 					temp="";
 				}
