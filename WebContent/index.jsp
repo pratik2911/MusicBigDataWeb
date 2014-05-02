@@ -7,32 +7,35 @@
 <%@page import="java.net.URLConnection"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
-<%@page import="java.lang.Exception" %>
-<%@page import="java.util.regex.Pattern" %>
-<%@page import="java.util.regex.Matcher" %>
-<%@page import="com.google.gson.Gson" %>
-<%@page import="com.google.gson.GsonBuilder" %>
-<%@page import="com.google.gson.JsonElement" %>
-<%@page import="com.google.gson.JsonParser" %>
+<%@page import="java.lang.Exception"%>
+<%@page import="java.util.regex.Pattern"%>
+<%@page import="java.util.regex.Matcher"%>
+<%@page import="com.google.gson.Gson"%>
+<%@page import="com.google.gson.GsonBuilder"%>
+<%@page import="com.google.gson.JsonElement"%>
+<%@page import="com.google.gson.JsonParser"%>
 
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
-    pageEncoding="US-ASCII"%>
+	pageEncoding="US-ASCII"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
 <!-- Optional theme -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script
+	src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
- <!-- Custom styles for this template -->
-    <link href="dashboard.css" rel="stylesheet">
-    
+<!-- Custom styles for this template -->
+<link href="dashboard.css" rel="stylesheet">
+
 <%!
 	private static final String API_KEY = "EX6P8AWPX20EYYEAD";
 	
@@ -42,23 +45,29 @@
 </head>
 <body>
 
-<h1>Get Recommendations</h1>
-<form action="index.jsp" method="post">
-User ID: <input type="text" name="userId" id="userId" size="50" />
-<input type="submit" class="btn btn-success" value="submit">
-</form>
+	<h1>Get Recommendations</h1>
+	<form action="index.jsp" method="post">
+		User ID: <input type="text" name="userId" id="userId" size="50" /> <input
+			type="submit" class="btn btn-success" value="submit">
+	</form>
 
 
-<%
+	<%
 
 	if(request.getParameter("userId") != null){
 		String resp;
 		String respBuff="";
 		List<String> outList = HBaseApi.getRecommendations(request.
 				getParameter("userId").toString(),"recommendations", "item_based");
+		List<String> history = HBaseApi.getRecommendations(request.
+				getParameter("userId").toString(), "recommendations", "input");
+		out.println(history);
 		Song currentSong = new Song();
-		out.println("<table class='table-hover table table-bordered' >");
-		out.println("<thead><th>Album Art</th><th>Song Title</th><th>Artist Name</th><th>Release Year</th></thead><tbody>");
+		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
+		//out.println("<thead><th>Album</th></thead><tbody>");
+		out.println("<tbody>");
+		out.println("<tr>");
+		/* </th><th>Song Title</th><th>Artist Name</th><th>Release Year</th></thead><tbody>"); */
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
@@ -101,7 +110,12 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 					Map bw = (Map) JsonHelper.getMessageObject(temp);
 					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
 					//out.println(tracks.get("id"));
-					out.println("<tr><td><a href=\"displayTrackData.jsp?id="+tracks.get("id")+"\"><img src=\""+tracks.get("release_image")+"\" class=\"img-responsive\"></a></td> <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n");
+					out.println("<td><a href=\"displayTrackData.jsp?id="
+					             +tracks.get("id")+"\"><img src=\""
+					             +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
+							     +"</br> Title: "+currentSong.getTitle()+"<br>Artist Name: "
+					             +currentSong.getArtist_name()+"</td>");
+					/* <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n"); */
 					
 					temp="";
 				}
@@ -113,6 +127,7 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 				e.printStackTrace();
 			}
 		}
+		out.println("</tr>");
 		out.println("</tbody></table>");
 	}
 	
@@ -120,9 +135,11 @@ User ID: <input type="text" name="userId" id="userId" size="50" />
 
 	<!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script
+		src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>
