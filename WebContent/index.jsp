@@ -133,6 +133,7 @@
 		}
 		out.println("</tr>");
 		out.println("</tbody></table>");
+		out.println("<a href=\"topArtists.jsp\">"+"Top 100 Artists"+"</a>");
 	}
 	
 %>
