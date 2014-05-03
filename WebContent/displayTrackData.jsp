@@ -53,11 +53,12 @@
 			while ((resp = br.readLine()) != null) {
 				respBuff += resp;
 			}
+			
 			br.close();
-			out.println(respBuff);
 			if (respBuff != null) {
 				Map trackDetails = (Map) JsonHelper
 						.getMessageObject(respBuff);
+				out.println("<h1>Track Data</h1>");
 				out.println("<table class='table-hover table table-bordered' >");
 				out.println("<thead><th>Release Image</th><th>Artist</th><th>Title</th><th>Danceability</th><th>Energy</th><th>Loudness</th><th>Liveness</th><th>Tempo</th></thead><tbody>");
 				Map map = (Map) ((Map) trackDetails.get("response"))
@@ -80,9 +81,13 @@
 	}
 	
 	out.println("<h1>Similar Songs</h1>");
-	
+	out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
+	out.println("<tbody>");
+	out.println("<tr>");
 	Song currentSong = new Song();
+	int count=0;
 	Map<String, Double> map= HBaseApi.getOneRecord("song_similarity",songID);
+	
 	for(String key : map.keySet()){
 		try{
 		respBuff="";
@@ -95,8 +100,6 @@
 		}
 		br.close();
 		
-		
-		//out.println(respBuff+"<br><br>");
 		if(respBuff!=""){
 			String arr[] = respBuff.split(",");
 			String temp="";
@@ -120,19 +123,22 @@
 				Map bw = (Map) JsonHelper.getMessageObject(temp);
 				Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
 				
-				//out.println(tracks);
 				out.println("<td><a href=\"displayTrackData.jsp?id="
 				             +tracks.get("id")+"&songId="
 							 +currentSong.getID()+"\"><img src=\""
 				             +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
 						     +"</br> Title: "+currentSong.getTitle()+"<br>Artist Name: "
 				             +currentSong.getArtist_name()+"</td>");
+				count++;
+				if(count==10){
+					break;
+				}
 				temp="";
 			}
 			respBuff="";
 		}
 		}catch (Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	out.println("</tr>");

@@ -73,6 +73,9 @@
 		List<String> history = HBaseApi.getRecommendations(request.
 				getParameter("userId").toString(), "recommendations", "input");
 		out.println(history);
+		out.println("<h1>User History</h1>");
+		
+		
 		Song currentSong = new Song();
 		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
 		out.println("<tbody>");

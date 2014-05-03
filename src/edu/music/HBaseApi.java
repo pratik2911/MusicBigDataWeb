@@ -160,7 +160,7 @@ public class HBaseApi {
   /**
    * Scan (or list) a table
    */
-  public static void getAllRecord (String tableName) {
+  public static void getAllRecords (String tableName) {
       try{
            HTable table = new HTable(conf, tableName);
            Scan s = new Scan();
@@ -202,8 +202,9 @@ public class HBaseApi {
   }
   
   public static void main(String args[]) throws IOException{
-  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
-  	Map<String, Double> out= getOneRecord("song_similarity", "SOVHZBK12AF72A66E8");
-  	System.out.println(out.toString());
+//  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
+  	Map<String, Double> out= getOneRecord("song_similarity", "SOYPAIC13129A90EFD");
+//  	System.out.println(out.toString());
+  	//getAllRecords("recommendations");
   }
 }
