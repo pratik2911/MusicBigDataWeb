@@ -1,9 +1,11 @@
 package edu.music;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -200,6 +202,67 @@ public class HBaseApi {
     	return null;
     }
   }
+  
+	public static List<Map.Entry<String, String>> getTopArtists(int limit){
+		try{
+			int rank = 1;
+			List<String> recommendations = new ArrayList<>();
+			List<Map.Entry<String, String>> topArtists = new ArrayList<>();
+
+			HTable table = new HTable(conf, "top_artists");
+			while(rank <= limit){
+				Get get = new Get(Bytes.toBytes(rank));
+				get.addFamily(Bytes.toBytes("most_popular"));
+				Result result = table.get(get);
+				for(KeyValue keyValue : result.raw()){
+					recommendations.add(new String(keyValue.getValue()));
+				}
+				rank++;
+			}
+			table.close();
+			System.out.println(recommendations.toString());
+			HTable artistsTable = new HTable(conf, "artists");
+			int count = 0;
+			while(count < limit){
+				//int k = count+1;
+				Get getArtists = new Get(Bytes.toBytes(recommendations.get(count)));
+				getArtists.addFamily(Bytes.toBytes("data"));
+				Result res = artistsTable.get(getArtists);
+
+				for(KeyValue key : res.raw()){
+					if(key.matchingQualifier(Bytes.toBytes("artist_name"))){
+						Map.Entry<String, String> map = new AbstractMap.SimpleEntry(recommendations.get(count), new String(key.getValue()));
+						topArtists.add(map);
+					}
+				}
+				count++;
+
+			}
+			artistsTable.close();
+			//System.out.println(topArtists);
+			return topArtists;
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+
+
+    public static Map<String,String> getArtists(String artistId){
+    	try{
+    		Map<String,String> map = new HashMap<>();
+    		HTable table = new HTable(conf, "artists");
+    		Get get = new Get(Bytes.toBytes(artistId));
+    		get.addFamily(Bytes.toBytes("data"));
+    		Result result = table.get(get);
+    		for(KeyValue keyValue : result.raw()){
+    			map.put(new String(keyValue.getQualifier()), new String(keyValue.getValue()));
+    		}
+    	return map;
+    	}catch(Exception e){
+    		return null;
+    	}
+    }
   
   public static void main(String args[]) throws IOException{
 //  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
