@@ -2,7 +2,14 @@ package edu.music;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -103,19 +110,53 @@ public class HBaseApi {
   /**
    * Get a row
    */
-  public static void getOneRecord (String tableName, String rowKey) throws IOException{
+  public static Map<String,Double> getOneRecord (String tableName, String rowKey) throws IOException{
       HTable table = new HTable(conf, tableName);
       Get get = new Get(rowKey.getBytes());
       Result rs = table.get(get);
+      TreeMap<String, Double> output=new TreeMap<String, Double>();
+      String key="";
+      
       for(KeyValue kv : rs.raw()){
-          System.out.print(new String(kv.getRow()) + " " );
-          System.out.print(new String(kv.getFamily()) + ":" );
-          System.out.print(new String(kv.getQualifier()) + " " );
-          System.out.print(kv.getTimestamp() + " " );
-          System.out.println(new String(kv.getValue()));
+        System.out.print(new String(kv.getRow()) + " " );
+        System.out.print(new String(kv.getFamily()) + ":" );
+        System.out.print(new String(kv.getQualifier()) + " " );
+        System.out.print(kv.getTimestamp() + " " );
+        System.out.println(new String(kv.getValue()));
+      	key=new String (kv.getRow());
+      	output.put(new String(kv.getQualifier()), Double.parseDouble(new String(kv.getValue())));
       }
       table.close();
+      
+      Map<String,Double> sortedMap = sortByValues(output);
+      return sortedMap;
   }
+
+  /*
+   * Java method to sort Map in Java by value e.g. HashMap or Hashtable
+   * throw NullPointerException if Map contains null values
+   * It also sort values even if they are duplicates
+   */
+	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
+	List<Map.Entry<K,V>> entries = new LinkedList<Map.Entry<K,V>>(map.entrySet());
+	
+	Collections.sort(entries, new Comparator<Map.Entry<K,V>>() {
+		@Override
+		public int compare(Entry<K, V> o1, Entry<K, V> o2) {
+			// TODO Auto-generated method stub
+			return o2.getValue().compareTo(o1.getValue());
+		}
+    });
+  
+    //LinkedHashMap will keep the keys in the order they are inserted
+    //which is currently sorted on natural ordering
+    Map<K,V> sortedMap = new LinkedHashMap<K,V>();
+  
+    for(Map.Entry<K,V> entry: entries){
+        sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    return sortedMap;
+	}
   /**
    * Scan (or list) a table
    */
@@ -162,6 +203,7 @@ public class HBaseApi {
   
   public static void main(String args[]) throws IOException{
   	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
-  	getOneRecord("song_similarity", "SOVHZBK12AF72A66E8");
+  	Map<String, Double> out= getOneRecord("song_similarity", "SOVHZBK12AF72A66E8");
+  	System.out.println(out.toString());
   }
 }

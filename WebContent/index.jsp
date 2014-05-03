@@ -45,11 +45,22 @@
 </head>
 <body>
 
-	<h1>Get Recommendations</h1>
-	<form action="index.jsp" method="post">
-		User ID: <input type="text" name="userId" id="userId" size="50" /> <input
-			type="submit" class="btn btn-success" value="submit">
+<h1>Music Recommendations</h1>
+<div class="row">
+  <div class="col-md-6">
+	<form action="index.jsp" method="get">
+		User ID: <input type="text" name="userId" id="userId" size="50" />
+		<input type="submit" class="btn btn-success" value="Submit">
 	</form>
+  	</div>
+  	<div class="col-md-6">
+  	<form action="displayTrackData.jsp" method="get">
+		Song ID: <input type="text" name="songId" id="songId" size="50" />
+		<input type="submit" class="btn btn-success" value="Submit">
+	</form>
+  </div>
+</div>
+<br><br>
 
 
 	<%
@@ -64,10 +75,8 @@
 		out.println(history);
 		Song currentSong = new Song();
 		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
-		//out.println("<thead><th>Album</th></thead><tbody>");
 		out.println("<tbody>");
 		out.println("<tr>");
-		/* </th><th>Song Title</th><th>Artist Name</th><th>Release Year</th></thead><tbody>"); */
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
@@ -100,23 +109,15 @@
 					}
 					br.close();
 					
-					/* Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-					    .create();
-					JsonParser jp = new JsonParser();
-					JsonElement je = jp.parse(temp);
-					String prettyJsonString = gson.toJson(je); */
-					//out.println(prettyJsonString);
-					
 					Map bw = (Map) JsonHelper.getMessageObject(temp);
 					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
-					//out.println(tracks.get("id"));
+					
 					out.println("<td><a href=\"displayTrackData.jsp?id="
-					             +tracks.get("id")+"\"><img src=\""
+					             +tracks.get("id")+"&songId="
+								 +currentSong.getID()+"\"><img src=\""
 					             +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
 							     +"</br> Title: "+currentSong.getTitle()+"<br>Artist Name: "
 					             +currentSong.getArtist_name()+"</td>");
-					/* <td>"+currentSong.getTitle()+"</td><td> \n "+currentSong.getArtist_name()+"</td><td>"+currentSong.getID()+"</td></tr> \n"); */
-					
 					temp="";
 				}
 				
