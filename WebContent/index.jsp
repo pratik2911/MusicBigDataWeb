@@ -69,9 +69,9 @@
 		String temp2="";
 		String respBuff="";
 		List<String> outList = HBaseApi.getRecommendations(request.
-				getParameter("userId").toString(),"recommendations", "item_based");
+				getParameter("userId").toString(),"recommendations_large", "item_based");
 		List<String> history = HBaseApi.getRecommendations(request.
-				getParameter("userId").toString(), "recommendations", "input");
+				getParameter("userId").toString(), "recommendations_large", "input");
 		
 		out.println("<h1>User History</h1>");
 		out.println("<table class='table-hover table table-bordered' >");
@@ -127,7 +127,6 @@
 		out.println("</tr>");
 		out.println("</tbody></table>");
 		
-		Song currentSong = new Song();
 		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
 		out.println("<tbody>");
 		out.println("<tr>");
@@ -144,11 +143,7 @@
 			br.close();
 			
 			if(respBuff!=""){
-				String arr[] = respBuff.split(",");
 				String temp="";
-				String json = respBuff.substring(respBuff.indexOf(arr[3]));
-				json=json.substring(json.indexOf('[')+1 , json.lastIndexOf(']'));
-				
 				Map bw = (Map) JsonHelper.getMessageObject(respBuff);
 				Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
 
@@ -166,10 +161,10 @@
 				
 				out.println("<td><a href=\"displayTrackData.jsp?id="
 				             +tracks.get("id")+"&songId="
-							 +currentSong.getID()+"\"><img src=\""
-				             +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
-						     +"</br> Title: "+currentSong.getTitle()+"<br>Artist Name: "
-				             +currentSong.getArtist_name()+"</td>");
+							 +songBw.get("id")+"\"><img src=\""
+				             +tracks.get("release_image")+"\" class=\"img-responsive\" height=\"200\" width=\"200\"></a></br>"
+						     +"</br> Title: "+songBw.get("title")+ "<br>Artist Name: "
+				             +songBw.get("artist_name")+"</td>");
 			}
 			respBuff="";
 			}catch (Exception e){
