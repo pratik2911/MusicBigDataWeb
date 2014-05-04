@@ -38,6 +38,7 @@
 
 		String artistId = request.getParameter("id");
 		Map<String, String> artist = HBaseApi.getArtists(artistId);
+		if(!artistId.equals("null")){
 		Map<String,String> names = new HashMap();
         Map<String,String> images = new HashMap();
 		Map<String, String> data = new HashMap();
@@ -79,10 +80,12 @@
 				
 				List map = (List) ((Map) trackDetails.get("response"))
 						.get("images");
-				Map src = (Map)map.get(0);
+				if(map.size() != 0){
+				  Map src = (Map)map.get(0);
 				//out.println(src.get("url"));
 				
 				images.put(imgId[i], src.get("url").toString());
+				}
 			}
 			
 			respBuff = "";
@@ -111,6 +114,7 @@
 		out.println("</tr>");
 		
 		out.println("</tbody>");
+		}
 		//out.println(images.toString());
 	%>
 </body>

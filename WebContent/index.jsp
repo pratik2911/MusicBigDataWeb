@@ -77,6 +77,7 @@
 		
 		
 		Song currentSong = new Song();
+		out.println("<a href=\"topSongs.jsp\">"+"Top 100 Songs"+"</a>");
 		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
 		out.println("<tbody>");
 		out.println("<tr>");

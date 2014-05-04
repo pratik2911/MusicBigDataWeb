@@ -220,7 +220,7 @@ public class HBaseApi {
 				rank++;
 			}
 			table.close();
-			System.out.println(recommendations.toString());
+			//System.out.println(recommendations.toString());
 			HTable artistsTable = new HTable(conf, "artists");
 			int count = 0;
 			while(count < limit){
@@ -247,7 +247,31 @@ public class HBaseApi {
 		}
 	}
 
-
+    public static List<String> getTopSongs(int limit){
+    	try{
+    		int rank = 1;
+    		List<String> recommendations = new ArrayList<>();
+    		
+    		HTable table = new HTable(conf, "top_songs");
+    		while(rank <= limit){
+				Get get = new Get(Bytes.toBytes(rank));
+				get.addFamily(Bytes.toBytes("most_listened"));
+				Result result = table.get(get);
+				for(KeyValue keyValue : result.raw()){
+					recommendations.add(new String(keyValue.getQualifier()));
+				}
+				rank++;
+			}
+			table.close();
+    		
+    		
+    		return recommendations;
+    	}catch(Exception e){
+    		return null;
+    	}
+    }
+	
+	
     public static Map<String,String> getArtists(String artistId){
     	try{
     		Map<String,String> map = new HashMap<>();
