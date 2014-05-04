@@ -17,13 +17,45 @@
 <!-- Latest compiled and minified JavaScript -->
 <script
 	src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 
-<title>Top 100 Artists</title>
+<title>Popular Artists</title>
 </head>
 <body>
+<div class="navbar-wrapper">
+      <div class="container" >
+
+        <div class="navbar navbar-inverse" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="index.jsp">Million Songs Data Analytics</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+              	<li><a href="dashboard.jsp">Dashboard</a></li>
+                <li><a href="topArtists.jsp">Popular Artists</a></li>
+                <li><a href="topSongs.jsp">Popular Songs</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+		<!--  Body  -->
+		<div class="panel panel-default">
+		<div class="panel-heading">
+		<h1>Popular Artists</h1>
+		</div>
+		<div class="panel-body">
 	<% 
 
-out.println("<h3>Top Artists</h3><table class='table-hover table table-bordered' >");
+out.println("<table class='table-hover table table-bordered' >");
 out.println("<thead><th>Rank</th><th>Artist Name</th></thead><tbody>");
 
 List<Map.Entry<String,String>> artistId = HBaseApi.getTopArtists(100);
@@ -32,12 +64,23 @@ while(count < 100){
    Map.Entry<String, String> map = artistId.get(count);
    String name = map.getValue();
    String[] topName = name.split("/");
-   out.println("<tr><td>"+(count+1)+"</td><td><a href=\"displayArtist.jsp?id="+map.getKey()+"\">"+topName[0]+"</a></td></tr>");
+   out.println("<tr class='clickableRow' href=\"displayArtist.jsp?id="+map.getKey()+"\"><td>"+(count+1)+"</td><td>"+topName[0]+"</td></tr>");
    count++;
 }
 out.println("</tbody>");
 out.println("</thead>");
 
 %>
+</div>
+</div>
+</div>
+</div>
+<script>
+jQuery(document).ready(function($) {
+    $(".clickableRow").click(function() {
+          window.document.location = $(this).attr("href");
+    });
+});
+</script>
 </body>
 </html>

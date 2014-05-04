@@ -268,30 +268,42 @@ public class HBaseApi {
 		}
 	}
 
-    public static List<String> getTopSongs(int limit){
+   public static List<String> getTopSongs(int limit){
+    	HTableInterface table = null;
     	try{
     		int rank = 1;
-    		List<String> recommendations = new ArrayList<>();
+    		List<String> recommendations = new ArrayList<String>();
+    		List<Get> getList = new ArrayList<Get>();
     		
-    		HTableInterface table = connection.getTable("top_songs");
+    		table = connection.getTable("top_songs");
     		while(rank <= limit){
 				Get get = new Get(Bytes.toBytes(rank));
 				get.addFamily(Bytes.toBytes("most_listened"));
-				Result result = table.get(get);
-				for(KeyValue keyValue : result.raw()){
-					recommendations.add(new String(keyValue.getQualifier()));
-				}
+				getList.add(get);
 				rank++;
-			}
-			table.close();
-    		
+    		}
+    		Result[] result = table.get(getList);
+    		for(int i=0; i< limit; i++){
+    			for(KeyValue keyValue : result[i].raw()){
+    				recommendations.add(new String(keyValue.getQualifier()));
+    			}
+    		}
     		
     		return recommendations;
+
     	}catch(Exception e){
     		return null;
     	}
+    	finally{
+    		try {
+    			if(table!=null){
+    				table.close();
+    			}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+    	}
     }
-	
 	
     public static Map<String,String> getArtists(String artistId){
   		HTableInterface table = null;
@@ -318,9 +330,8 @@ public class HBaseApi {
     }
   
   public static void main(String args[]) throws IOException{
-  	getTopArtists(1);
   	long start = System.currentTimeMillis();
-  	getTopArtists(100);
+  	System.out.println(getTopArtists(5));
   	long stop = System.currentTimeMillis();
   	System.out.println("done "+(stop-start)/1000.0);
 //  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));

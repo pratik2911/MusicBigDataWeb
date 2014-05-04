@@ -1,8 +1,6 @@
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.List"%>
 <%@page import="edu.music.JsonHelper"%>
-<%@page
-	import="org.apache.commons.collections.iterators.EntrySetMapIterator"%>
 <%@page import="java.util.Iterator"%>
 <%@page import="edu.music.HBaseApi"%>
 <%@page import="java.io.InputStreamReader"%>
@@ -31,9 +29,40 @@
 <title>Artist Details</title>
 </head>
 <body>
+<div class="navbar-wrapper">
+      <div class="container" >
+
+        <div class="navbar navbar-inverse" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="index.jsp">Million Songs Data Analytics</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+              	<li><a href="dashboard.jsp">Dashboard</a></li>
+                <li><a href="topArtists.jsp">Popular Artists</a></li>
+                <li><a href="topSongs.jsp">Popular Songs</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+		<!--  Body  -->
+		<div class="panel panel-default">
+		<div class="panel-heading">
+		<h1>Artist Bio</h1>
+		</div>
+		<div class="panel-body">
+		<div class="row">
 
 	<%
-		out.println("<h3>Top Artists</h3><table class='table-hover table table-bordered' >");
+		out.println("<table class='table-hover table table-bordered' >");
 		out.println("<thead><th>Label</th><th>Values</th></thead><tbody>");
 
 		String artistId = request.getParameter("id");
@@ -77,45 +106,62 @@
 			
 			if (respBuff != null) {
 				Map trackDetails = (Map) JsonHelper.getMessageObject(respBuff);
-				
 				List map = (List) ((Map) trackDetails.get("response"))
 						.get("images");
 				if(map.size() != 0){
 				  Map src = (Map)map.get(0);
-				//out.println(src.get("url"));
+				  //out.println(src.get("url"));
 				
 				images.put(imgId[i], src.get("url").toString());
 				}
 			}
-			
 			respBuff = "";
-
 		}
+		
+		String myUrl = "";
+		String resp;
+		URL jsonPage = new URL(
+				"http://developer.echonest.com/api/v4/artist/images?api_key="
+				+API_KEY+"&id="
+				+artistId+"&format=json&results=1&start=0&license=unknown");
+		URLConnection urIcon = jsonPage.openConnection();
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				urIcon.getInputStream()));
+
+		while ((resp = br.readLine()) != null) {
+			myUrl += resp;
+		}
+		br.close();
+		
+		Map bw = (Map) JsonHelper.getMessageObject(myUrl);
+		Map img = (Map)((List) ((Map) bw.get("response")).get("images")).get(0);
+		
 		String name = data.get("artist_name").split("/")[0];
+		
 		out.println("<tr><td>" + "Artist Name" + "</td><td>"
-				+ name + "</td></tr>");
+				+"<img src=\""+img.get("url") +"\" class=\"img-responsive\" height=200 width=200></a></br>"
+            + name + "</td></tr>");
 		out.println("<tr><td>" + "Artist Tags" + "</td><td>"
 				+ data.get("artist_terms") + "</td></tr>");
 		out.println("</thead>");
 		out.println("</tbody>");
-		/* out.println("<tr><td><a href=\"displayArtist.jsp?id="++>" + "Similar Artists" + "</td><td>"
-				+ data.get("similar_artists") + "</td></tr>"); */
-		
 		out.println("<table class='table-hover table table-bordered' >");
 				
-		out.println("<tr><td>"+"Similar Artists Recommendations"+"</td>");
+		out.println("<h3>Similar Artists</h3> <tr>");
 		for(Map.Entry<String,String> im : images.entrySet()){
-			if(names.get(im.getKey()) != null )
+			if(names.get(im.getKey()) != null)
 			out.println("<td><a href=\"displayArtist.jsp?id="
 		                 +im.getKey()+"\"><img src=\""
 			             +im.getValue()+"\" height=100 width=100></a><br>"
 		                 +names.get(im.getKey())+"</td>");
 		}
 		out.println("</tr>");
-		
 		out.println("</tbody>");
 		}
-		//out.println(images.toString());
 	%>
+	</div>
+	</div>
+	</div>
+	</div>
 </body>
 </html>
