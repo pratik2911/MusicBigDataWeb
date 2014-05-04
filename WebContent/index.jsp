@@ -1,4 +1,3 @@
-<%@page import="edu.music.Song"%>
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="java.io.BufferedReader"%>
 <%@page import="edu.music.HBaseApi"%>
@@ -64,14 +63,14 @@
 
 
 <%
-	if(request.getParameter("userId") != null){
+	String userId=request.getParameter("userId");
+
+	if(userId != null && userId.length()>0){
 		String resp;
 		String temp2="";
 		String respBuff="";
-		List<String> outList = HBaseApi.getRecommendations(request.
-				getParameter("userId").toString(),"recommendations_large", "item_based");
-		List<String> history = HBaseApi.getRecommendations(request.
-				getParameter("userId").toString(), "recommendations_large", "input");
+		List<String> outList = HBaseApi.getRecommendations(userId.toString(),"recommendations_large", "item_based");
+		List<String> history = HBaseApi.getRecommendations(userId.toString(), "recommendations_large", "input");
 		
 		out.println("<h1>User History</h1>");
 		out.println("<table class='table-hover table table-bordered' >");
@@ -124,12 +123,16 @@
 				
 			}
 		}
+		
+		
 		out.println("</tr>");
 		out.println("</tbody></table>");
 		
 		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
 		out.println("<tbody>");
 		out.println("<tr>");
+		
+		
 		for(String str : outList){
 			try {
 			String id = str.split(":")[0];
@@ -161,7 +164,7 @@
 				
 				out.println("<td><a href=\"displayTrackData.jsp?id="
 				             +tracks.get("id")+"&songId="
-							 +songBw.get("id")+"\"><img src=\""
+							 +id+"\"><img src=\""
 				             +tracks.get("release_image")+"\" class=\"img-responsive\" height=\"200\" width=\"200\"></a></br>"
 						     +"</br> Title: "+songBw.get("title")+ "<br>Artist Name: "
 				             +songBw.get("artist_name")+"</td>");

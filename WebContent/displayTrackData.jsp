@@ -1,4 +1,3 @@
-<%@page import="edu.music.Song"%>
 <%@page import="edu.music.JsonHelper"%>
 <%@page import="edu.music.HBaseApi"%>
 <%@page import="java.net.URLConnection"%>
@@ -40,109 +39,99 @@
 	String resp;
 	String respBuff = "";
 	
-	if(request.getParameter("songId") != null){
-		if (trackID != null) {
-			
-			URL jsonPage = new URL("http://developer.echonest.com/api/v4/track/profile?api_key="
-							+ API_KEY + "&format=json&id=" + trackID
-							+ "&bucket=audio_summary");
-			URLConnection urIcon = jsonPage.openConnection();
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					urIcon.getInputStream()));
-
-			while ((resp = br.readLine()) != null) {
-				respBuff += resp;
-			}
-			
-			br.close();
-			if (respBuff != null) {
-				Map trackDetails = (Map) JsonHelper
-						.getMessageObject(respBuff);
-				out.println("<h1>Track Data</h1>");
-				out.println("<table class='table-hover table table-bordered' >");
-				out.println("<thead><th>Release Image</th><th>Artist</th><th>Title</th><th>Danceability</th><th>Energy</th><th>Loudness</th><th>Liveness</th><th>Tempo</th></thead><tbody>");
-				Map map = (Map) ((Map) trackDetails.get("response"))
-						.get("track");
-				Map list = (Map) map.get("audio_summary");
-				out.println("<tr><td><img src=\""
-						+ map.get("release_image")
-						+ "\" class=\"img-responsive\"></td><td>"
-						+ map.get("artist") + "</td><td>"
-						+ map.get("title") + "</td><td>"
-						+ list.get("danceability") + "</td><td>"
-						+ list.get("energy") + "</td><td>"
-						+ list.get("loudness") + "</td><td>"
-						+ list.get("liveness") + "</td><td>"
-						+ list.get("tempo") + "</td></tr>");
-				out.println("</tbody></table>");
-			}
-			respBuff = "";
-		}
-	}
-	
-	out.println("<h1>Similar Songs</h1>");
-	out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
-	out.println("<tbody>");
-	out.println("<tr>");
-	Song currentSong = new Song();
-	int count=0;
-	Map<String, Double> map= HBaseApi.getOneRecord("song_similarity",songID);
-	
-	for(String key : map.keySet()){
-		try{
-		respBuff="";
-		URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+key);
+	if(songID != null && songID.length()>0 && trackID !=null && trackID.length()>0 ){
+		URL jsonPage = new URL("http://developer.echonest.com/api/v4/track/profile?api_key="
+			+ API_KEY + "&format=json&id=" + trackID + "&bucket=audio_summary");
 		URLConnection urIcon = jsonPage.openConnection();
-		BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
-		
-		while((resp = br.readLine()) != null){
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				urIcon.getInputStream()));
+
+		while ((resp = br.readLine()) != null) {
 			respBuff += resp;
 		}
-		br.close();
 		
-		if(respBuff!=""){
-			String arr[] = respBuff.split(",");
-			String temp="";
-			String json = respBuff.substring(respBuff.indexOf(arr[3]));
-			json=json.substring(json.indexOf('[')+1 , json.lastIndexOf(']'));
+		br.close();
+		if (respBuff != null) {
+			Map trackDetails = (Map) JsonHelper
+					.getMessageObject(respBuff);
+			out.println("<h1>Track Data</h1>");
+			out.println("<table class='table-hover table table-bordered' >");
+			out.println("<thead><th>Release Image</th><th>Artist</th><th>Title</th><th>Danceability</th><th>Energy</th><th>Loudness</th><th>Liveness</th><th>Tempo</th></thead><tbody>");
+			Map map = (Map) ((Map) trackDetails.get("response"))
+					.get("track");
+			Map list = (Map) map.get("audio_summary");
+			out.println("<tr><td><img src=\""
+					+ map.get("release_image")
+					+ "\" class=\"img-responsive\"></td><td>"
+					+ map.get("artist") + "</td><td>"
+					+ map.get("title") + "</td><td>"
+					+ list.get("danceability") + "</td><td>"
+					+ list.get("energy") + "</td><td>"
+					+ list.get("loudness") + "</td><td>"
+					+ list.get("liveness") + "</td><td>"
+					+ list.get("tempo") + "</td></tr>");
+			out.println("</tbody></table>");
+		}
+		respBuff = "";
+	}
+	
+	if(songID != null && songID.length()>0){
+		out.println("<h1>Similar Songs</h1>");
+		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
+		out.println("<tbody>");
+		out.println("<tr>");
+		int count=0;
+		Map<String, Double> map= HBaseApi.getOneRecord("song_similarity_large",songID);
+		
+		for(String key : map.keySet()){
+			try{
+			respBuff="";
+			URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+key);
+			URLConnection urIcon = jsonPage.openConnection();
+			BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
 			
+			while((resp = br.readLine()) != null){
+				respBuff += resp;
+			}
+			br.close();
 			
-			if(json.length()>0){
-				currentSong=currentSong.fromJson(json);
+			if(respBuff!=""){
+				String temp="";
+				
+				Map bw = (Map) JsonHelper.getMessageObject(respBuff);
+				Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
+				
 				jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
-					+currentSong.getArtist_name().toLowerCase().replace(" ", "%20")+"&title="+currentSong.getTitle().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
-				
-				
+						+songBw.get("artist_name").toString().toLowerCase().replace(" ", "%20")+"&title="+songBw.get("title").toString().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
 				urIcon = jsonPage.openConnection();
 				br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
 				while((resp = br.readLine()) != null){
 					temp += resp;
 				}
 				br.close();
-				
-				Map bw = (Map) JsonHelper.getMessageObject(temp);
+					
+				bw = (Map) JsonHelper.getMessageObject(temp);
 				Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
 				
 				out.println("<td><a href=\"displayTrackData.jsp?id="
 				             +tracks.get("id")+"&songId="
-							 +currentSong.getID()+"\"><img src=\""
-				             +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
-						     +"</br> Title: "+currentSong.getTitle()+"<br>Artist Name: "
-				             +currentSong.getArtist_name()+"</td>");
+							 +key+"\"><img src=\""
+				             +tracks.get("release_image")+"\" class=\"img-responsive\" height=200 width=200></a></br>"
+						     +"</br> Title: "+songBw.get("title")+"<br>Artist Name: "
+				             +songBw.get("artist_name")+"</td>");
 				count++;
 				if(count==10){
 					break;
 				}
-				temp="";
+				respBuff="";
 			}
-			respBuff="";
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 		}
-		}catch (Exception e){
-			//e.printStackTrace();
-		}
+		out.println("</tr>");
+		out.println("</tbody></table>");
 	}
-	out.println("</tr>");
-	out.println("</tbody></table>");
 	
 	%>
 	<script

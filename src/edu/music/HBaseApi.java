@@ -23,7 +23,9 @@ import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HConnectionManager;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -32,11 +34,18 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class HBaseApi {
 	private static Configuration conf = null;
+	private static HConnection connection = null;
+	
   /**
    * Initialization
    */
   static {
       conf = HBaseConfiguration.create();
+			try {
+				connection = HConnectionManager.createConnection(conf);
+			} catch (ZooKeeperConnectionException e) {
+				e.printStackTrace();
+			}
   }
 
   /**
@@ -82,7 +91,7 @@ public class HBaseApi {
   public static void addRecord(String tableName, String rowKey,
           String family, String qualifier, String value) throws Exception {
       try {
-          HTable table = new HTable(conf, tableName);
+      		HTableInterface table = connection.getTable(tableName);
           Put put = new Put(Bytes.toBytes(rowKey));
           put.add(Bytes.toBytes(family), Bytes.toBytes(qualifier), Bytes
                   .toBytes(value));
@@ -100,7 +109,7 @@ public class HBaseApi {
    */
   public static void delRecord(String tableName, String rowKey)
           throws IOException {
-      HTable table = new HTable(conf, tableName);
+  		HTableInterface table = connection.getTable(tableName);
       List<Delete> list = new ArrayList<Delete>();
       Delete del = new Delete(rowKey.getBytes());
       list.add(del);
@@ -113,24 +122,25 @@ public class HBaseApi {
    * Get a row
    */
   public static Map<String,Double> getOneRecord (String tableName, String rowKey) throws IOException{
-      HTable table = new HTable(conf, tableName);
+      HTableInterface table = connection.getTable(tableName);
       Get get = new Get(rowKey.getBytes());
       Result rs = table.get(get);
       TreeMap<String, Double> output=new TreeMap<String, Double>();
       String key="";
       
       for(KeyValue kv : rs.raw()){
-        System.out.print(new String(kv.getRow()) + " " );
-        System.out.print(new String(kv.getFamily()) + ":" );
-        System.out.print(new String(kv.getQualifier()) + " " );
-        System.out.print(kv.getTimestamp() + " " );
-        System.out.println(new String(kv.getValue()));
+//        System.out.print(new String(kv.getRow()) + " " );
+//        System.out.print(new String(kv.getFamily()) + ":" );
+//        System.out.print(new String(kv.getQualifier()) + " " );
+//        System.out.print(kv.getTimestamp() + " " );
+//        System.out.println(new String(kv.getValue()));
       	key=new String (kv.getRow());
       	output.put(new String(kv.getQualifier()), Double.parseDouble(new String(kv.getValue())));
       }
       table.close();
       
       Map<String,Double> sortedMap = sortByValues(output);
+      System.out.println(sortedMap);
       return sortedMap;
   }
 
@@ -164,7 +174,7 @@ public class HBaseApi {
    */
   public static void getAllRecords (String tableName) {
       try{
-           HTable table = new HTable(conf, tableName);
+      		 HTableInterface table = connection.getTable(tableName);
            Scan s = new Scan();
            ResultScanner ss = table.getScanner(s);
            for(Result r:ss){
@@ -185,7 +195,7 @@ public class HBaseApi {
   public static List<String> getRecommendations(String userId, String tableName, String familyName) {
     try{
     	 List<String> recommendations = new ArrayList<String>();
-         HTable table = new HTable(conf, tableName);
+         HTableInterface table = connection.getTable(tableName);
          Get get = new Get(Bytes.toBytes(userId));
          get.addFamily(Bytes.toBytes(familyName));
          Result result = table.get(get);
@@ -208,40 +218,51 @@ public class HBaseApi {
 			int rank = 1;
 			List<String> recommendations = new ArrayList<>();
 			List<Map.Entry<String, String>> topArtists = new ArrayList<>();
-
-			HTable table = new HTable(conf, "top_artists");
+			List<Get> getList = new ArrayList<Get>();
+			HTableInterface topArtistsTable = connection.getTable(Bytes.toBytes("top_artists"));
+			
 			while(rank <= limit){
 				Get get = new Get(Bytes.toBytes(rank));
 				get.addFamily(Bytes.toBytes("most_popular"));
-				Result result = table.get(get);
-				for(KeyValue keyValue : result.raw()){
-					recommendations.add(new String(keyValue.getValue()));
-				}
+				getList.add(get);
 				rank++;
 			}
-			table.close();
-			//System.out.println(recommendations.toString());
-			HTable artistsTable = new HTable(conf, "artists");
+			
+			Result[] result = topArtistsTable.get(getList);
+			for(int i = 0; i < limit; ++i) {
+				for(KeyValue keyValue : result[i].raw()){
+					recommendations.add(new String(keyValue.getValue()));
+				}
+			}
+			topArtistsTable.close();
+			
+			HTableInterface artistsTable = connection.getTable("artists"); 
 			int count = 0;
+			getList.clear();
 			while(count < limit){
 				//int k = count+1;
 				Get getArtists = new Get(Bytes.toBytes(recommendations.get(count)));
 				getArtists.addFamily(Bytes.toBytes("data"));
-				Result res = artistsTable.get(getArtists);
-
-				for(KeyValue key : res.raw()){
+				getList.add(getArtists);
+				count++;
+			}
+			
+			Result[] res = artistsTable.get(getList);
+			
+			for(int i = 0; i < limit; ++i) {
+				for(KeyValue key : res[i].raw()){
 					if(key.matchingQualifier(Bytes.toBytes("artist_name"))){
-						Map.Entry<String, String> map = new AbstractMap.SimpleEntry(recommendations.get(count), new String(key.getValue()));
+						Map.Entry<String, String> map = new AbstractMap.SimpleEntry(recommendations.get(i), new String(key.getValue()));
 						topArtists.add(map);
 					}
 				}
-				count++;
-
 			}
+			
 			artistsTable.close();
 			//System.out.println(topArtists);
 			return topArtists;
 		}catch(Exception e){
+			e.printStackTrace();
 			System.out.println(e.getMessage());
 			return null;
 		}
@@ -252,7 +273,7 @@ public class HBaseApi {
     		int rank = 1;
     		List<String> recommendations = new ArrayList<>();
     		
-    		HTable table = new HTable(conf, "top_songs");
+    		HTableInterface table = connection.getTable("top_songs");
     		while(rank <= limit){
 				Get get = new Get(Bytes.toBytes(rank));
 				get.addFamily(Bytes.toBytes("most_listened"));
@@ -273,9 +294,10 @@ public class HBaseApi {
 	
 	
     public static Map<String,String> getArtists(String artistId){
+  		HTableInterface table = null;
     	try{
+    		table = connection.getTable("artists");
     		Map<String,String> map = new HashMap<>();
-    		HTable table = new HTable(conf, "artists");
     		Get get = new Get(Bytes.toBytes(artistId));
     		get.addFamily(Bytes.toBytes("data"));
     		Result result = table.get(get);
@@ -285,13 +307,25 @@ public class HBaseApi {
     	return map;
     	}catch(Exception e){
     		return null;
+    	}finally {
+    		if (table != null) {
+    			try {
+						table.close();
+					} catch (IOException e) {
+					}
+    		}
     	}
     }
   
   public static void main(String args[]) throws IOException{
+  	getTopArtists(1);
+  	long start = System.currentTimeMillis();
+  	getTopArtists(100);
+  	long stop = System.currentTimeMillis();
+  	System.out.println("done "+(stop-start)/1000.0);
 //  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
-  	Map<String, Double> out= getOneRecord("song_similarity", "SOYPAIC13129A90EFD");
-//  	System.out.println(out.toString());
+  	//Map<String, Double> out= getOneRecord("song_similarity_large", "SOAXQEG12AB01899F9");
+  	//System.out.println(out.toString());
   	//getAllRecords("recommendations");
   }
 }

@@ -16,7 +16,7 @@
 
 if(request.getParameter("songId") != null){
 	String currentSong=request.getParameter("songId");
-	Map<String, Double> map= HBaseApi.getOneRecord("song_similarity",
+	Map<String, Double> map= HBaseApi.getOneRecord("song_similarity_large",
 		currentSong);
 	out.println(currentSong);
 	for(String key : map.keySet()){
