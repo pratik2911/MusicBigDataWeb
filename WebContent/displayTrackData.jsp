@@ -14,26 +14,47 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet"
-	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
-<!-- Optional theme -->
-<link rel="stylesheet"
-	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
-<!-- Latest compiled and minified JavaScript -->
-<script
-	src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
-<!-- Custom styles for this template -->
-<link href="dashboard.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="dashboard.css" rel="stylesheet">
 
 <%!private static final String API_KEY = "EX6P8AWPX20EYYEAD";%>
 
 <title>Big Data Analytics</title>
 </head>
 <body>
+<div class="navbar-wrapper">
+      <div class="container" >
+
+        <div class="navbar navbar-inverse" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="index.jsp">Million Songs Data Analytics</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+              	<li><a href="data.jsp">Data Overview</a></li>
+              	<li><a href="dashboard.jsp">Dashboard</a></li>
+                <li><a href="topArtists.jsp">Popular Artists</a></li>
+                <li><a href="topSongs.jsp">Popular Songs</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
 	<%
 	String trackID = request.getParameter("id");
 	String songID = request.getParameter("songId");
@@ -139,5 +160,7 @@
 		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script
 		src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		</div>
+		</div>
 </body>
 </html>

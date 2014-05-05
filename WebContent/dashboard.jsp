@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+	<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 
 	<!-- Bootstrap core CSS -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +39,7 @@
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
+              	<li><a href="data.jsp">Data Overview</a></li>
               	<li><a href="dashboard.jsp">Dashboard</a></li>
                 <li><a href="topArtists.jsp">Popular Artists</a></li>
                 <li><a href="topSongs.jsp">Popular Songs</a></li>

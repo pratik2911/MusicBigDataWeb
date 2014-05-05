@@ -16,14 +16,12 @@
 <%!private static final String API_KEY = "EX6P8AWPX20EYYEAD";%>
 <link rel="stylesheet"
 	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
-<!-- Optional theme -->
-<link rel="stylesheet"
-	href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-
-<!-- Latest compiled and minified JavaScript -->
-<script
-	src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Artist Details</title>
@@ -45,6 +43,7 @@
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
+              	<li><a href="data.jsp">Data Overview</a></li>
               	<li><a href="dashboard.jsp">Dashboard</a></li>
                 <li><a href="topArtists.jsp">Popular Artists</a></li>
                 <li><a href="topSongs.jsp">Popular Songs</a></li>
@@ -159,6 +158,7 @@
 		out.println("</tbody>");
 		}
 	%>
+	</div>
 	</div>
 	</div>
 	</div>

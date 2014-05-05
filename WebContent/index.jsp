@@ -17,16 +17,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-
+	<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 	<!-- Bootstrap core CSS -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
-
-<title>Big Data Analytics</title>
+	<title>Big Data Analytics</title>
 </head>
 <body>
 
@@ -46,6 +47,7 @@
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
+              	<li><a href="data.jsp">Data Overview</a></li>
               	<li><a href="dashboard.jsp">Dashboard</a></li>
                 <li><a href="topArtists.jsp">Popular Artists</a></li>
                 <li><a href="topSongs.jsp">Popular Songs</a></li>
