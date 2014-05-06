@@ -49,13 +49,12 @@
 		<!--  Body  -->
 		<div class="panel panel-default">
 		<div class="panel-heading">
-		<h1>Dashboard</h1>
+		<h1>Data Overview</h1>
 		</div>
 		<div class="panel-body">
 		<div class="row">
-		  <object data="artist_terms_cloud.svg" type="image/svg+xml">
-  			<img src="artist_terms_cloud.png" />
-			</object>
+		
+		<div id="container" style="height: 400px"></div>
 		
 		</div>
 		</div>
@@ -63,5 +62,51 @@
 	</div>
     </div>
 
+<script type="text/javascript">
+$(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'pie',
+            options3d: {
+				enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'Rating Distribution'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Rating distribution',
+            data: [{name: '1', y: 28755966},
+                   {name: '2 to 5', y: 14607176},
+                {name: '6 to 10', y:2966862},
+                {name: '11 to 15', y: 953415},
+                {
+                    name: '>15',
+                    y: 1090167,
+                    sliced: true,
+                    selected: true
+                },
+            ]
+        }]
+    });
+});
+</script>
 </body>
 </html>

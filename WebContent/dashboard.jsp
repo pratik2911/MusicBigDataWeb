@@ -1,3 +1,5 @@
+<%@page import="edu.music.GenreByYears"%>
+<%@page import="java.util.Map"%>
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -55,7 +57,10 @@
 		</div>
 		<div class="panel-body">
 		<div class="row">
-		  
+		<div class="panel-heading">
+		
+		<h3>Tag distribution</h3>
+		</div>
 		<div id="container"></div>
 			<div id="sliders">
 			<table>
@@ -64,6 +69,20 @@
 			</table>
 			</div>
 		</div>
+		
+		
+		<div class="panel-heading">
+		<h3>Tag Word Cloud</h3>
+		</div>
+		<object data="artists_terms_cloud.svg" type="image/svg+xml" align="middle">
+  			<img src="artists_terms_cloud.png" />
+		</object>
+		
+		
+		<div class="panel-heading">
+		<h3>Tag Trends over Decades</h3>
+		</div>
+		<div id="container2"></div>
 	</div>
 	</div>
 	</div>
@@ -115,12 +134,11 @@
 	                   {y:342988, color:'#FF9655'},
 	                   {y:332237, color:'#FFF263'},
 	                   {y:308743, color:'#6AF9C4'},
-	                   286271, 
+	                   {y:286271}, 
 	                   {y:282390, color:'#248687'}
 	                   ]
 	        }]
 	    });
-	    
 
 	    // Activate the sliders
 	    $('#R0').on('change', function(){
@@ -139,6 +157,56 @@
 	        $('#R1-value').html(chart.options.chart.options3d.beta);
 	    }
 	    showValues();
+	    
+	    $('#container2').highcharts({
+            title: {
+                text: 'Trends over Decades',
+                x: -20 //center
+            },
+            
+            xAxis: {
+            	title: {
+                    text: 'Decades'
+                },
+                categories: 
+                <%
+                GenreByYears gen = new GenreByYears();
+				String jspPath = session.getServletContext().getRealPath("/tagscountbyyearfile");
+				gen.createLists(jspPath+"/alternative rock");
+				out.println(gen.getDecadeList());
+				Map<String, String> map = gen.getMap(jspPath+"/");
+				String[] allGenres = gen.getAllGenres();
+				%>
+            },
+            yAxis: {
+                title: {
+                    text: 'Popularity'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'middle',
+                borderWidth: 1
+            },
+            
+            series: [
+            <% for(String genre : allGenres){
+            	out.println("{");
+            	out.println("name: '"+genre+"',");
+            	out.println("data: "+map.get(genre));
+            	out.println("},");
+            	}%>
+            ]
+        });
 	});
 	</script>
 

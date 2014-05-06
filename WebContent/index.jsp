@@ -86,118 +86,128 @@
 <%
 	
 	String userId=request.getParameter("userId");
-
+	
 	if(userId != null && userId.length()>0){
 		String resp;
 		String temp2="";
 		String respBuff="";
-		List<String> outList = HBaseApi.getRecommendations(userId.toString(),"recommendations_large", "item_based");
-		List<String> history = HBaseApi.getRecommendations(userId.toString(), "recommendations_large", "input");
+		Map<String, Double> outList = HBaseApi.getRecommendations(userId.toString(),"recommendations_large", "item_based");
+		Map<String, Double> history = HBaseApi.getRecommendations(userId.toString(), "recommendations_large", "input");
 		
-		out.println("<h1>User History</h1>");
-		out.println("<table class='table-hover table table-bordered' >");
-		out.println("<tbody>");
-		out.println("<tr>");
-		int count=0;
-		for (String str : history){
-			respBuff="";
+		out.println("<h3>User History</h3>");
+		if(history.size()>0){
 			
-			try {
-			String id = str.split(":")[0];
-			String times = str.split(":")[1];
-			URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+id.trim());
-			URLConnection urIcon = jsonPage.openConnection();
-			BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
-			
-			while((resp = br.readLine()) != null){
-				respBuff += resp;
-			}
-			br.close();
-			
-			if(respBuff!=""){
-				temp2="";
-				Map bw = (Map) JsonHelper.getMessageObject(respBuff);
-				Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
-
-				jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
-						+songBw.get("artist_name").toString().toLowerCase().replace(" ", "%20")+"&title="+songBw.get("title").toString().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
-				urIcon = jsonPage.openConnection();
-				br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+			out.println("<table class='table-hover table table-bordered' >");
+			out.println("<tbody>");
+			out.println("<tr>");
+			int count=0;
+			for (String id : history.keySet()){
+				respBuff="";
+				
+				try {
+				URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+id.trim());
+				URLConnection urIcon = jsonPage.openConnection();
+				BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+				
 				while((resp = br.readLine()) != null){
-					temp2 += resp;
+					respBuff += resp;
 				}
 				br.close();
 				
-				bw = (Map) JsonHelper.getMessageObject(temp2);
-				Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
-				out.println("<td><a href=\"displayTrackData.jsp?id="
-			            +tracks.get("id")+"&songId="
-						+id+"\"><img src=\""
-			            +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
-					    +"</br> Title: "+songBw.get("title")+"<br>Artist Name: "
-			            +songBw.get("artist_name")+"</td>");
-				count++;
-				if(count>10){
-					break;
-				}
-			}
-			}catch(Exception e){
-				
-			}
-		}
-		
-		
-		out.println("</tr>");
-		out.println("</tbody></table>");
-		
-		out.println("<h3>Recommendations</h3><table class='table-hover table table-bordered' >");
-		out.println("<tbody>");
-		out.println("<tr>");
-		
-		
-		for(String str : outList){
-			try {
-			String id = str.split(":")[0];
-			URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+id.trim());
-			URLConnection urIcon = jsonPage.openConnection();
-			BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
-			
-			while((resp = br.readLine()) != null){
-				respBuff += resp;
-			}
-			br.close();
-			
-			if(respBuff!=""){
-				String temp="";
-				Map bw = (Map) JsonHelper.getMessageObject(respBuff);
-				Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
-
-				jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
-						+songBw.get("artist_name").toString().toLowerCase().replace(" ", "%20")+"&title="+songBw.get("title").toString().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
-				urIcon = jsonPage.openConnection();
-				br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
-				while((resp = br.readLine()) != null){
-					temp += resp;
-				}
-				br.close();
+				if(respBuff!=""){
+					temp2="";
+					Map bw = (Map) JsonHelper.getMessageObject(respBuff);
+					Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
+	
+					jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
+							+songBw.get("artist_name").toString().toLowerCase().replace(" ", "%20")+"&title="+songBw.get("title").toString().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
+					urIcon = jsonPage.openConnection();
+					br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+					while((resp = br.readLine()) != null){
+						temp2 += resp;
+					}
+					br.close();
 					
-				bw = (Map) JsonHelper.getMessageObject(temp);
-				Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
-				
-				out.println("<td><a href=\"displayTrackData.jsp?id="
-				             +tracks.get("id")+"&songId="
-							 +id+"\"><img src=\""
-				             +tracks.get("release_image")+"\" class=\"img-responsive\" height=\"200\" width=\"200\"></a></br>"
-						     +"</br> Title: "+songBw.get("title")+ "<br>Artist Name: "
-				             +songBw.get("artist_name")+"</td>");
+					bw = (Map) JsonHelper.getMessageObject(temp2);
+					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
+					out.println("<td><a href=\"displayTrackData.jsp?id="
+				            +tracks.get("id")+"&songId="
+							+id+"\"><img src=\""
+				            +tracks.get("release_image")+"\" class=\"img-responsive\"></a></br>"
+						    +"</br> Title: "+songBw.get("title")+"<br>Artist Name: "
+				            +songBw.get("artist_name")+"</td>");
+					count++;
+					if(count>10){
+						break;
+					}
+				}
+				else{
+					out.println("User not Found. Try Again.");
+				}
+				}catch(Exception e){
+					
+				}
 			}
-			respBuff="";
-			}catch (Exception e){
-				e.printStackTrace();
-			}
+			
+			
+			out.println("</tr>");
+			out.println("</tbody></table>");
+		}else{
+			out.println("User history NOT found! Try Again.");
 		}
-		out.println("</tr>");
-		out.println("</tbody></table>");
+		
+		out.println("<h3>Recommendations</h3>");
+		if(outList.size()>0){
+			out.println("<table class='table-hover table table-bordered' >");
+			out.println("<tbody>");
+			out.println("<tr>");
+			
+			for(String id : outList.keySet()){
+				try {
+				//String id = str.split(":")[0];
+				URL jsonPage = new URL("http://developer.echonest.com/api/v4/song/profile?api_key="+API_KEY+"&format=json&id="+id.trim());
+				URLConnection urIcon = jsonPage.openConnection();
+				BufferedReader br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+				
+				while((resp = br.readLine()) != null){
+					respBuff += resp;
+				}
+				br.close();
+				
+				if(respBuff!=""){
+					String temp="";
+					Map bw = (Map) JsonHelper.getMessageObject(respBuff);
+					Map songBw = (Map)((List)((Map)bw.get("response")).get("songs")).get(0);
+	
+					jsonPage= new URL("http://developer.echonest.com/api/v4/song/search?api_key=EX6P8AWPX20EYYEAD&format=json&results=1&artist="
+							+songBw.get("artist_name").toString().toLowerCase().replace(" ", "%20")+"&title="+songBw.get("title").toString().toLowerCase().replace(" ", "%20")+"&bucket=id:7digital-US&bucket=audio_summary&bucket=tracks");
+					urIcon = jsonPage.openConnection();
+					br = new BufferedReader(new InputStreamReader(urIcon.getInputStream()));
+					while((resp = br.readLine()) != null){
+						temp += resp;
+					}
+					br.close();
+						
+					bw = (Map) JsonHelper.getMessageObject(temp);
+					Map tracks = (Map)((List)((Map)((List) ((Map)bw.get("response")).get("songs")).get(0)).get("tracks")).get(0);
+					
+					out.println("<td><a href=\"displayTrackData.jsp?id="
+					             +tracks.get("id")+"&songId="
+								 +id+"\"><img src=\""
+					             +tracks.get("release_image")+"\" class=\"img-responsive\" height=\"200\" width=\"200\"></a></br>"
+							     +"</br> Title: "+songBw.get("title")+ "<br>Artist Name: "
+					             +songBw.get("artist_name")+"</td>");
+				}
+				respBuff="";
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+			out.println("</tr>");
+			out.println("</tbody></table>");
+		}else{
+			out.println("Recommendations NOT found! Try Again.");
+		}
 	}
 	
 %>

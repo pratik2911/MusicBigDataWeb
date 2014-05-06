@@ -1,8 +1,15 @@
 #container, #sliders {
 	min-width: 310px; 
-	max-width: 800px;
+	max-width: 1000px;
 	margin: 0 auto;
 }
 #container {
-	height: 400px; 
+	height: 500px; 
+}
+#container2 {
+	max-width: 1000px;
+	margin: 0 auto;
+}
+#container2 {
+	height: 500px; 
 }

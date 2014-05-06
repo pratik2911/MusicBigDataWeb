@@ -192,22 +192,22 @@ public class HBaseApi {
       }
   }
   
-  public static List<String> getRecommendations(String userId, String tableName, String familyName) {
+  public static Map<String, Double> getRecommendations(String userId, String tableName, String familyName) {
     try{
-    	 List<String> recommendations = new ArrayList<String>();
-         HTableInterface table = connection.getTable(tableName);
-         Get get = new Get(Bytes.toBytes(userId));
-         get.addFamily(Bytes.toBytes(familyName));
-         Result result = table.get(get);
-         for(KeyValue keyValue : result.raw()) {
-        	 recommendations.add(
-        			 new String(keyValue.getQualifier())
-        			 + ":"
-        			 + new String(keyValue.getValue()));
-        	 
-         }
-         table.close();
-         return recommendations;
+    	 	TreeMap<String, Double> recommendations=new TreeMap<String, Double>();
+    	 	HTableInterface table = connection.getTable(tableName);
+    	 	Get get = new Get(Bytes.toBytes(userId));
+        get.addFamily(Bytes.toBytes(familyName));
+        Result result = table.get(get);
+        for(KeyValue keyValue : result.raw()) {
+        	recommendations.put(new String(keyValue.getQualifier()),Double.parseDouble(new String(keyValue.getValue())));
+        }
+        
+        table.close();
+        
+        Map<String,Double> sortedMap = sortByValues(recommendations);
+        return sortedMap;
+        
     } catch (Exception e){
     	return null;
     }
@@ -259,7 +259,6 @@ public class HBaseApi {
 			}
 			
 			artistsTable.close();
-			//System.out.println(topArtists);
 			return topArtists;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -330,11 +329,7 @@ public class HBaseApi {
     }
   
   public static void main(String args[]) throws IOException{
-  	long start = System.currentTimeMillis();
-  	System.out.println(getTopArtists(5));
-  	long stop = System.currentTimeMillis();
-  	System.out.println("done "+(stop-start)/1000.0);
-//  	System.out.println(getRecommendations("9be82340a8b5ef32357fe5af957ccd54736ece95","recommendations" ,"item_based"));
+  	System.out.println(getRecommendations("d6589314c0a9bcbca4fee0c93b14bc402363afea","recommendations_large" ,"item_based"));
   	//Map<String, Double> out= getOneRecord("song_similarity_large", "SOAXQEG12AB01899F9");
   	//System.out.println(out.toString());
   	//getAllRecords("recommendations");
