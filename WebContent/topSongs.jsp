@@ -40,9 +40,10 @@
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
               	<li><a href="data.jsp">Data Overview</a></li>
-              	<li><a href="dashboard.jsp">Dashboard</a></li>
                 <li><a href="topArtists.jsp">Popular Artists</a></li>
                 <li><a href="topSongs.jsp">Popular Songs</a></li>
+                <li><a href="dashboard.jsp">Dashboard</a></li>
+                <li><a href="geolocate.jsp">Geo-locate</a></li>
               </ul>
             </div>
           </div>
